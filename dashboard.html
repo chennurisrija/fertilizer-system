@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AgriSense — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;
+  --card:#ffffff;
+  --green:#2d6a4f;
+  --lime:#74c69d;
+  --gold:#d4a017;
+  --orange:#f4a261;
+  --red:#e63946;
+  --text:#1b4332;
+  --muted:#6c757d;
+  --border:#e6e6e6;
+  --sw:255px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+font-family:'DM Sans',sans-serif;
+background: #e8f5e9;;
+color:#1b4332;
+display:flex;
+min-height:100vh;
+}
+/* sidebar */
+.sb{width:var(--sw);background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:99;}
+.sb-logo{padding:24px 20px 16px;border-bottom:1px solid var(--border);}
+.sb-brand{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--lime),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sb-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.sb-user{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.av{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--lime));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
+.u-name{font-size:13px;font-weight:600;}
+.u-email{font-size:11px;color:var(--muted);margin-top:1px;word-break:break-all;}
+.nav{padding:12px 8px;flex:1;}
+.ni{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;cursor:pointer;transition:all 0.2s;color:var(--muted);font-size:13px;font-weight:500;margin-bottom:2px;}
+.ni:hover{background:rgba(116,198,157,0.06);color:var(--text);}
+.ni.on{background:rgba(45,106,79,0.28);color:var(--lime);}
+.sb-out{margin:0 8px 16px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:10px;border:1px solid var(--border);transition:all 0.2s;}
+.sb-out:hover{border-color:var(--red);color:var(--red);}
+
+/* main */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{
+padding:16px 28px;
+border-bottom:1px solid #e6e6e6;
+background:#ffffff;
+position:sticky;
+top:0;
+z-index:50;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+.tb-title{font-size:20px;font-weight:700;}
+.tb-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+.badge{background:rgba(116,198,157,0.1);border:1px solid rgba(116,198,157,0.28);color:var(--lime);font-size:11px;padding:5px 12px;border-radius:16px;}
+.content{padding:26px;flex:1;}
+
+/* pages */
+.pg{display:none;}.pg.on{display:block;}
+
+/* form */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;}
+.ct{
+font-size:20px;            /* slightly bigger */
+font-weight:700;
+color:#59b46b;             /* light yellow */
+text-transform:uppercase;
+letter-spacing:1.5px;
+margin-bottom:16px;
+}
+.fi{margin-bottom:14px;}
+label {
+    color: #101211;      /* light green */
+    font-size: 16px;     /* increase size */
+    font-weight: 600;    /* slightly bold */
+}
+input,select{width:100%;padding:11px 13px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;}
+input:focus,select:focus{border-color:var(--lime);background:rgba(116,198,157,0.04);}
+input::placeholder{color:rgba(106,143,110,0.4);}
+select option{
+background:#ffffff;
+color:#000000;
+}
+.iw{position:relative;}.iw input{padding-right:52px;}
+.un{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);}
+input[type=range]{-webkit-appearance:none;height:5px;border:none;border-radius:3px;padding:0;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--lime);border-radius:50%;cursor:pointer;border:3px solid var(--card);}
+.abtn{width:100%;padding:14px;margin-top:4px;background:linear-gradient(135deg,var(--green),#1b4332);border:1px solid rgba(116,198,157,0.3);border-radius:12px;color:var(--lime);font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;}
+.abtn:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(45,106,79,0.45);}
+.abtn:disabled{opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* feedback */
+.errmsg{background:rgba(230,57,70,0.1);border:1px solid rgba(230,57,70,0.3);border-radius:10px;padding:13px 16px;color:#ff8585;font-size:13px;margin-top:14px;display:none;white-space:pre-line;}
+.loader{display:none;text-align:center;padding:36px;margin-top:14px;}
+.loader.on{display:block;}
+.dots{display:flex;gap:7px;justify-content:center;}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--lime);animation:bop 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
+@keyframes bop{0%,80%,100%{transform:scale(0);}40%{transform:scale(1);}}
+
+/* results */
+#res{display:none;margin-top:24px;}
+.rhead{background:linear-gradient(135deg,rgba(45,106,79,0.25),rgba(116,198,157,0.07));border:1px solid rgba(116,198,157,0.25);border-radius:16px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden;}
+.rhead::after{content:'🌾';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:52px;opacity:0.1;}
+.rc{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--lime);}
+.rm{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.6;}
+
+/* npk grid */
+.npkg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+.npkb{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px;}
+.npkl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.npkv{font-size:24px;font-weight:700;margin-bottom:5px;}
+.st{font-size:10px;font-weight:600;padding:2px 8px;border-radius:16px;display:inline-block;}
+.stLow{background:rgba(230,57,70,0.13);color:#ff8585;border:1px solid rgba(230,57,70,0.25);}
+.stMedium{background:rgba(212,160,23,0.13);color:var(--gold);border:1px solid rgba(212,160,23,0.25);}
+.stHigh{background:rgba(116,198,157,0.13);color:var(--lime);border:1px solid rgba(116,198,157,0.25);}
+.pbar{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:8px;}
+.pfill{height:100%;border-radius:3px;}
+.npkn{font-size:10px;color:var(--muted);margin-top:5px;}
+
+/* fertilizers */
+.frow{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;}
+.frow:last-child{margin-bottom:0;}
+.fn{font-size:18px;font-weight:600;color:var(--lime);}
+.fp{font-size:11px;color:var(--muted);margin-top:2px;}
+.fq{text-align:right;}
+.fqv{font-size:18px;font-weight:700;}
+.fc{font-size:11px;color:var(--gold);margin-top:2px;}
+
+/* cost */
+.costc{background:linear-gradient(135deg,rgba(212,160,23,0.09),rgba(212,160,23,0.03));border:1px solid rgba(212,160,23,0.25);border-radius:13px;padding:20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.sva{font-size:32px;font-weight:700;color:var(--gold);}
+.svl{font-size:12px;color:var(--muted);margin-top:3px;}
+.svb{background:rgba(116,198,157,0.12);border:1px solid rgba(116,198,157,0.25);border-radius:10px;padding:12px 20px;text-align:center;flex-shrink:0;}
+.svp{font-size:24px;font-weight:700;color:var(--lime);}
+
+/* organics + tips */
+.orow{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.orow:last-child{border-bottom:none;}
+.trow{padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);display:flex;gap:8px;}
+.trow:last-child{border-bottom:none;}
+.trow::before{content:'→';color:var(--lime);flex-shrink:0;}
+
+/* history */
+.hcard{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;transition:border-color 0.2s;}
+.hcard:hover{border-color:rgba(116,198,157,0.28);}
+
+/* guide */
+.gtbl{width:100%;border-collapse:collapse;font-size:13px;}
+.gtbl th,.gtbl td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;}
+.phr{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-radius:7px;margin-bottom:7px;}
+</style>
+</head>
+<body>
+
+<div class="sb">
+  <div class="sb-logo">
+    <div style="font-size:40px;margin-bottom:5px">🌱</div>
+    <div class="sb-brand">AgriSense</div>
+    <div class="sb-sub">Soil Intelligence</div>
+  </div>
+  <div class="sb-user">
+    <div class="av" id="av">F</div>
+    <div><div class="u-name" id="uname">Farmer</div><div class="u-email" id="uemail"></div></div>
+  </div>
+  <nav class="nav">
+    <div class="ni on" onclick="showPg('analyze',this)"><span>🧪</span> Soil Analysis</div>
+    <div class="ni" onclick="showPg('history',this)"><span>📋</span> My Records</div>
+    <div class="ni" onclick="showPg('guide',this)"><span>📖</span> NPK Guide</div>
+  </nav>
+  <div class="sb-out" onclick="logout()"><span>🚪</span> Sign Out</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div><div class="tb-title" id="pgtitle">Soil Analysis</div><div class="tb-sub">Enter soil data to get fertilizer recommendations</div></div>
+    <div class="badge">🌿 Smart Analysis</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ANALYZE -->
+    <div class="pg on" id="pg-analyze">
+      <div class="g2">
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="ct">🌾 Crop &amp; Location</div>
+            <div class="fi">
+              <label>Crop Name * <span style="font-size:11px;text-transform:none;letter-spacing:0;color:var(--muted)">(type any crop name)</span></label>
+              <input type="text" id="f-crop" placeholder="e.g. Rice, Wheat, Tomato, Maize...">
+              <div style="margin-top:5px;font-size:11px;color:var(--muted)">Common: Rice · Wheat · Maize · Tomato · Potato · Cotton · Onion · Banana · Sugarcane</div>
+            </div>
+            <div class="fi">
+              <label>Location *</label>
+              <select id="f-loc">
+                <option value="">— Select location —</option>
+                <option>Andhrapradesh</option>
+                <option>Telangana</option>
+                <option>Maharastra</option>
+                <option>karnataka</option>
+                <option>Tamilnadu</option>
+              </select>
+            </div>
+            <div class="fi">
+              <label>Soil Type *</label>
+              <select id="f-soil">
+                <option value="">— Select soil type —</option>
+                <option value="Loamy">Loamy (Best for farming)</option>
+                <option value="Sandy">Sandy (Drains quickly)</option>
+                <option value="Clay">Clay (Holds water)</option>
+                <option value="Silty">Silty (Fertile, moist)</option>
+                <option value="Peaty">Peaty (High organic matter)</option>
+                <option value="Chalky">Chalky (Alkaline)</option>
+              </select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ct">💧 Moisture, pH &amp; Climate</div>
+            <div class="fi">
+              <label>Soil pH (0–14)</label>
+              <div class="iw"><input type="number" id="f-ph" placeholder="6.5" min="0" max="14" step="0.1"><span class="un">pH</span></div>
+            </div>
+            <div class="fi">
+              <label>Soil Moisture: <span id="mv">50</span>%</label>
+              <input type="range" id="f-moist" min="0" max="100" value="50" oninput="document.getElementById('mv').textContent=this.value;rangeBg(this)">
+            </div>
+            <div class="fi">
+              <label>Temperature (°C)</label>
+              <div class="iw"><input type="number" id="f-temp" placeholder="25" min="-50" max="60" step="0.1"><span class="un">°C</span></div>
+            </div>
+            <div class="fi">
+              <label>Humidity (%)</label>
+              <div class="iw"><input type="number" id="f-hum" placeholder="60" min="0" max="100" step="0.1"><span class="un">%</span></div>
+            </div>
+            <div class="fi">
+              <label>Season</label>
+              <select id="f-season">
+                <option value="">— Select season —</option>
+                <option>Spring</option>
+                <option>Summer</option>
+                <option>Monsoon</option>
+                <option>Autumn</option>
+                <option>Winter</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="ct">🧬 NPK Soil Levels (kg/ha)</div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Enter current values from your soil test report.</p>
+            <div class="fi"><label>Nitrogen (N) *</label><div class="iw"><input type="number" id="f-n" placeholder="e.g. 40" min="0" max="999" step="0.1"><span class="un">kg/ha</span></div></div>
+            <div class="fi"><label>Phosphorus (P) *</label><div class="iw"><input type="number" id="f-p" placeholder="e.g. 30" min="0" max="999" step="0.1"><span class="un">kg/ha</span></div></div>
+            <div class="fi"><label>Potassium (K) *</label><div class="iw"><input type="number" id="f-k" placeholder="e.g. 25" min="0" max="999" step="0.1"><span class="un">kg/ha</span></div></div>
+          </div>
+          <button class="abtn" id="abtn" onclick="doAnalyze()">🔬 Analyze &amp; Get Recommendation</button>
+        </div>
+      </div>
+
+      <div class="errmsg" id="errmsg"></div>
+      <div class="loader" id="loader"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><p style="margin-top:12px;color:var(--muted);font-size:13px">Analyzing your soil data...</p></div>
+
+      <!-- ═══ RESULTS ═══ -->
+      <div id="res">
+        <div class="rhead"><div class="rc" id="rc">—</div><div class="rm" id="rm"></div></div>
+        <div class="npkg" id="npkg"></div>
+        <div class="card" style="margin-bottom:16px"><div class="ct">🌿 Recommended Fertilizers</div><div id="flist"></div></div>
+        <div class="costc">
+          <div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Estimated Cost Savings</div>
+            <div class="sva" id="sva">₹0</div>
+            <div class="svl" id="svl"></div>
+          </div>
+          <div class="svb"><div class="svp" id="svp">0%</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Saved</div></div>
+        </div>
+        <div class="card" style="margin-bottom:16px"><div class="ct">♻️ Organic Alternatives</div><div id="orglist"></div></div>
+        <div class="card"><div class="ct">💡 Farming Tips</div><div id="tiplist"></div></div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="pg" id="pg-history"><div id="hlist"><p style="color:var(--muted);text-align:center;padding:60px">Loading records...</p></div></div>
+
+    <!-- GUIDE -->
+    <div class="pg" id="pg-guide">
+      <div class="g2">
+        <div class="card">
+          <div class="ct">🌿 Understanding NPK</div>
+          <div style="margin-bottom:16px"><div style="font-size:15px;font-weight:700;color:var(--lime);margin-bottom:5px">N — Nitrogen</div><p style="font-size:13px;color:var(--muted);line-height:1.7">Drives leaf and stem growth. Low N = yellowing leaves. Sources: Urea (46%N), Ammonium Sulfate (21%N).</p></div>
+          <div style="margin-bottom:16px"><div style="font-size:15px;font-weight:700;color:var(--orange);margin-bottom:5px">P — Phosphorus</div><p style="font-size:13px;color:var(--muted);line-height:1.7">Root & flower development. Low P = purple leaves. Sources: DAP (46%P), SSP (16%P).</p></div>
+          <div><div style="font-size:15px;font-weight:700;color:var(--gold);margin-bottom:5px">K — Potassium</div><p style="font-size:13px;color:var(--muted);line-height:1.7">Disease resistance & fruit quality. Low K = brown leaf edges. Sources: MOP (60%K).</p></div>
+        </div>
+        <div class="card">
+          <div class="ct">📊 Soil pH Guide</div>
+          <div class="phr" style="background:rgba(230,57,70,0.08);border:1px solid rgba(230,57,70,0.18)"><span>Below 5.5</span><span style="color:#ff8585;font-size:12px">Very Acidic — Lime</span></div>
+          <div class="phr" style="background:rgba(244,162,97,0.08);border:1px solid rgba(244,162,97,0.18)"><span>5.5 – 6.0</span><span style="color:var(--orange);font-size:12px">Slightly Acidic</span></div>
+          <div class="phr" style="background:rgba(116,198,157,0.08);border:1px solid rgba(116,198,157,0.18)"><span>6.0 – 7.5</span><span style="color:var(--lime);font-size:12px">✓ Optimal</span></div>
+          <div class="phr" style="background:rgba(244,162,97,0.08);border:1px solid rgba(244,162,97,0.18)"><span>7.5 – 8.0</span><span style="color:var(--orange);font-size:12px">Slightly Alkaline</span></div>
+          <div class="phr" style="background:rgba(230,57,70,0.08);border:1px solid rgba(230,57,70,0.18)"><span>Above 8.0</span><span style="color:#ff8585;font-size:12px">Very Alkaline — Sulfur</span></div>
+        </div>
+        <div class="card" style="grid-column:1/-1">
+          <div class="ct">🌾 Crop NPK Requirements (kg/ha)</div>
+          <div style="overflow-x:auto"><table class="gtbl"><thead><tr><th>Crop</th><th style="color:var(--lime)">N</th><th style="color:var(--orange)">P</th><th style="color:var(--gold)">K</th></tr></thead><tbody id="gtbl"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Same origin — Flask serves both frontend and API
+var API = '';
+var user = null;
+
+var GUIDE_DATA = [
+  ['Rice',80,40,40],['Wheat',80,40,40],['Maize',120,60,60],['Sugarcane',175,70,90],
+  ['Cotton',100,50,70],['Tomato',80,60,90],['Potato',120,70,100],['Onion',70,50,70],
+  ['Soybean',30,50,50],['Groundnut',30,50,50],['Sunflower',75,50,50],['Chickpea',30,50,30],
+  ['Mustard',75,40,40],['Barley',75,40,40],['Sorghum',80,40,40],['Banana',125,40,175],
+  ['Mango',80,40,70],['Chili',80,50,70],['Brinjal',80,50,70],['Cabbage',100,50,70],
+  ['Carrot',60,50,70],['Garlic',80,50,70],['Ginger',80,50,90],['Papaya',100,50,90],['Coconut',100,50,140]
+];
+
+window.onload = function() {
+  var s = localStorage.getItem('agri_user');
+  if (!s) { location.href = 'index.html'; return; }
+  user = JSON.parse(s);
+  document.getElementById('uname').textContent = user.name;
+  document.getElementById('uemail').textContent = user.email;
+  document.getElementById('av').textContent = user.name.charAt(0).toUpperCase();
+
+  // Build guide table
+  var h = '';
+  for (var i = 0; i < GUIDE_DATA.length; i++) {
+    var r = GUIDE_DATA[i];
+    h += '<tr><td style="font-weight:500">' + r[0] + '</td>' +
+         '<td style="color:var(--lime);text-align:center">' + r[1] + '</td>' +
+         '<td style="color:var(--orange);text-align:center">' + r[2] + '</td>' +
+         '<td style="color:var(--gold);text-align:center">' + r[3] + '</td></tr>';
+  }
+  document.getElementById('gtbl').innerHTML = h;
+  rangeBg(document.getElementById('f-moist'));
+};
+
+function rangeBg(el) {
+  var p = (el.value - el.min) / (el.max - el.min) * 100;
+  el.style.background = 'linear-gradient(to right,var(--lime) 0%,var(--lime) ' + p + '%,rgba(116,198,157,0.18) ' + p + '%)';
+}
+
+function showPg(name, el) {
+  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.ni').forEach(function(n){ n.classList.remove('on'); });
+  document.getElementById('pg-' + name).classList.add('on');
+  if (el) el.classList.add('on');
+  var titles = { analyze:'Soil Analysis', history:'My Records', guide:'NPK Guide' };
+  document.getElementById('pgtitle').textContent = titles[name];
+  if (name === 'history') loadHistory();
+}
+
+function setErr(msg) {
+  var el = document.getElementById('errmsg');
+  el.style.display = msg ? 'block' : 'none';
+  el.textContent = msg;
+}
+
+function setBusy(busy) {
+  var btn = document.getElementById('abtn');
+  btn.disabled = busy;
+  btn.textContent = busy ? '⏳ Analyzing...' : '🔬 Analyze & Get Recommendation';
+  document.getElementById('loader').className = 'loader' + (busy ? ' on' : '');
+}
+
+async function doAnalyze() {
+  setErr('');
+  document.getElementById('res').style.display = 'none';
+
+  var crop  = (document.getElementById('f-crop').value  || '').trim();
+  var soil  = (document.getElementById('f-soil').value  || '').trim();
+  var nv    =  document.getElementById('f-n').value;
+  var pv    =  document.getElementById('f-p').value;
+  var kv    =  document.getElementById('f-k').value;
+  var phv   =  document.getElementById('f-ph').value;
+  var moist =  document.getElementById('f-moist').value;
+  var tempv =  document.getElementById('f-temp').value;
+  var humv  =  document.getElementById('f-hum').value;
+  var season = (document.getElementById('f-season').value || '').trim();
+  var loc   = (document.getElementById('f-loc').value   || '').trim();
+
+  if (!crop)          { setErr('Please enter a crop name.'); return; }
+  if (!soil)          { setErr('Please select a soil type.'); return; }
+  if (nv  === '')     { setErr('Please enter Nitrogen (N) value.'); return; }
+  if (pv  === '')     { setErr('Please enter Phosphorus (P) value.'); return; }
+  if (kv  === '')     { setErr('Please enter Potassium (K) value.'); return; }
+  if (phv === '')     { setErr('Please enter soil pH value.'); return; }
+  if (!loc)           { setErr('Please select a location.'); return; }
+
+  var N  = parseFloat(nv);
+  var P  = parseFloat(pv);
+  var K  = parseFloat(kv);
+  var pH = parseFloat(phv);
+  var T  = tempv === '' ? null : parseFloat(tempv);
+  var H  = humv  === '' ? null : parseFloat(humv);
+
+  if (isNaN(N)||isNaN(P)||isNaN(K)||isNaN(pH)) { setErr('NPK and pH must be valid numbers.'); return; }
+  if (pH < 0 || pH > 14) { setErr('Soil pH must be between 0 and 14.'); return; }
+  if (T!==null && (isNaN(T) || T < -50 || T > 60)) { setErr('Temperature must be a valid value between -50 and 60°C.'); return; }
+  if (H!==null && (isNaN(H) || H < 0 || H > 100)) { setErr('Humidity must be between 0 and 100%.'); return; }
+
+  setBusy(true);
+
+  try {
+    var resp = await fetch(API + '/api/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: user.id, crop: crop, nitrogen: N, phosphorus: P,
+        potassium: K, ph: pH, soil_type: soil,
+        moisture: parseFloat(moist), location: loc,
+        temperature: T, humidity: H, season: season
+      })
+    });
+
+    setBusy(false);
+    var data = await resp.json();
+
+    if (!resp.ok) {
+      setErr('Error: ' + (data.error || 'Analysis failed. Please try again.'));
+      return;
+    }
+
+    renderResults(data);
+
+  } catch (err) {
+    setBusy(false);
+    setErr('Cannot connect to the backend server.\n\nMake sure you opened this page via http://localhost:5000 (not as a file://)\n\nIn VS Code terminal run:\n  cd backend\n  python app.py\nThen open: http://localhost:5000');
+  }
+}
+
+function renderResults(d) {
+  var resEl = document.getElementById('res');
+  resEl.style.display = 'block';
+
+  // header
+  document.getElementById('rc').textContent = '🌾 ' + d.crop;
+  var meta = 'Soil: ' + d.soil_type + '  ·  pH: ' + d.current.ph.value + '  ·  ' + d.ph_advice;
+  if (d.unknown_crop && d.unknown_note) meta = '⚠️ ' + d.unknown_note + '  ·  ' + d.ph_advice;
+  document.getElementById('rm').textContent = meta;
+
+  // npk
+  var colors = ['var(--lime)', 'var(--orange)', 'var(--gold)'];
+  var keys   = ['nitrogen', 'phosphorus', 'potassium'];
+  var labs   = ['Nitrogen (N)', 'Phosphorus (P)', 'Potassium (K)'];
+  var h = '';
+  for (var i = 0; i < 3; i++) {
+    var cv   = d.current[keys[i]];
+    var req  = d.required[keys[i]] || 1;
+    var def  = d.deficit[keys[i]];
+    var pct  = Math.min(100, Math.round(cv.value / req * 100));
+    h += '<div class="npkb">' +
+      '<div class="npkl">' + labs[i] + '</div>' +
+      '<div class="npkv" style="color:' + colors[i] + '">' + cv.value +
+        '<span style="font-size:12px;color:var(--muted);font-weight:400"> kg/ha</span></div>' +
+      '<span class="st st' + cv.status + '">' + cv.status + '</span>' +
+      '<div class="pbar"><div class="pfill" style="width:' + pct + '%;background:' + colors[i] + '"></div></div>' +
+      '<div class="npkn">Required: ' + req + ' kg/ha · Deficit: ' + def + ' kg/ha</div>' +
+      '</div>';
+  }
+  document.getElementById('npkg').innerHTML = h;
+
+  // fertilizers
+  var fh = '';
+  if (d.fertilizers && d.fertilizers.length > 0) {
+    for (var j = 0; j < d.fertilizers.length; j++) {
+      var f = d.fertilizers[j];
+      fh += '<div class="frow">' +
+        '<div><div class="fn">🧪 ' + f.name + '</div><div class="fp">' + f.purpose + '</div></div>' +
+        '<div class="fq"><div class="fqv">' + f.quantity_kg + ' kg</div><div class="fc">₹' + f.cost + '</div></div>' +
+        '</div>';
+    }
+  } else {
+    fh = '<p style="padding:16px;text-align:center;color:var(--lime);font-size:13px">✅ Soil nutrients are sufficient. Minimal fertilization needed.</p>';
+  }
+  document.getElementById('flist').innerHTML = fh;
+
+  // cost
+  document.getElementById('sva').textContent = '₹' + d.cost.savings;
+  document.getElementById('svl').textContent = 'With system: ₹' + d.cost.estimated + '  vs  Without: ₹' + d.cost.without;
+  document.getElementById('svp').textContent = d.cost.percent + '%';
+
+  // organics
+  var oh = '';
+  for (var o = 0; o < d.organics.length; o++) {
+    var og = d.organics[o];
+    oh += '<div class="orow">' +
+      '<div><div style="font-size:13px;font-weight:600">🌿 ' + og.name + '</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + og.benefit + '</div></div>' +
+      '<div style="font-size:12px;color:var(--lime);padding-left:12px;white-space:nowrap">' + og.qty + '</div>' +
+      '</div>';
+  }
+  document.getElementById('orglist').innerHTML = oh;
+
+  // tips
+  var th = '';
+  for (var t = 0; t < d.tips.length; t++) {
+    th += '<div class="trow">' + d.tips[t] + '</div>';
+  }
+  document.getElementById('tiplist').innerHTML = th;
+
+  // scroll
+  setTimeout(function() { resEl.scrollIntoView({ behavior:'smooth', block:'start' }); }, 60);
+}
+
+async function loadHistory() {
+  var el = document.getElementById('hlist');
+  el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">Loading...</p>';
+  try {
+    var r    = await fetch(API + '/api/history/' + user.id);
+    var data = await r.json();
+    if (!data.length) {
+      el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:60px">No records yet. Analyze your soil to get started!</p>';
+      return;
+    }
+    var h = '';
+    for (var i = 0; i < data.length; i++) {
+      var rec = data[i];
+      var dt  = new Date(rec.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
+      h += '<div class="hcard">' +
+        '<div><div style="font-size:16px;font-weight:600;margin-bottom:3px">🌾 ' + rec.crop + '</div>' +
+        '<div style="font-size:11px;color:var(--muted)">N:' + rec.nitrogen + ' · P:' + rec.phosphorus + ' · K:' + rec.potassium + ' · pH:' + rec.ph + ' · ' + rec.soil_type + '</div></div>' +
+        '<div style="font-size:11px;color:var(--muted);flex-shrink:0;margin-left:12px">' + dt + '</div>' +
+        '</div>';
+    }
+    el.innerHTML = h;
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px">Could not load — backend offline.</p>';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('agri_user');
+  location.href = 'index.html';
+}
+</script>
+</body>
+</html>
