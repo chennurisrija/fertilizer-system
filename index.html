@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AgriSense — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a140a;--card:#111f11;--green:#6a2d36;--lime:#74c69d;--gold:#d4a017;--text:#e8f5e0;--muted:#6a8f6e;--border:rgba(116,198,157,0.15);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;
+background-image:url('img crop.jpg');background-size:cover;background-repeat:no-repeat;background-attachment:fixed;}
+.wrap{width:100%;max-width:400px;padding:20px;}
+.logo{text-align:center;margin-bottom:32px;}
+.logo-icon{width:64px;height:64px;margin:0 auto 12px;background:linear-gradient(135deg,var(--green),var(--lime));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 0 40px rgba(116,198,157,0.25);}
+.logo-title{font-family:'Playfair Display',serif;font-size:55px;font-weight:900;background:linear-gradient(135deg,var(--lime),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:3px;}
+.login-image{text-align:center;margin:20px 0;}
+.login-image img{max-width:100%;height:auto;border-radius:12px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;}
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,0.04);border-radius:11px;padding:4px;margin-bottom:26px;}
+.tab{
+flex:1;
+padding:9px;
+text-align:center;
+cursor:pointer;
+border-radius:8px;
+font-size:14px;
+font-weight:600;
+color:#ffffff;   /* normal text color */
+transition:all 0.2s;
+}
+
+.tab.on{
+background:linear-gradient(135deg,var(--green),#1b4332);
+color:#ffffff;   /* active tab color */
+}
+.panel{display:none;}.panel.on{display:block;}
+.fi{margin-bottom:16px;}
+label{
+display:block;
+font-size:11px;
+color:#ffffff;   /* change to white */
+margin-bottom:6px;
+letter-spacing:1px;
+text-transform:uppercase;
+}
+input{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid var(--border);
+background:#0d1b0d;
+color:#fff;
+font-size:14px;
+}
+input:focus{border-color:var(--lime);background:rgba(116,198,157,0.05);}
+input::placeholder{color:rgba(106,143,110,0.4);}
+.btn{
+width:100%;
+padding:14px;
+margin-top:4px;
+background:linear-gradient(135deg,var(--green),#1b4332);
+border:1px solid rgba(116,198,157,0.3);
+border-radius:11px;
+color:#ffffff;   /* text color changed */
+font-size:15px;
+font-weight:600;
+font-family:'DM Sans',sans-serif;
+cursor:pointer;
+transition:all 0.2s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(45,106,79,0.4);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.msg{border-radius:9px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none;}
+.err{background:rgba(230,57,70,0.1);border:1px solid rgba(230,57,70,0.3);color:#ff8585;}
+.suc{background:rgba(45,106,79,0.15);border:1px solid rgba(116,198,157,0.3);color:var(--lime);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-icon">🌱</div>
+    <div class="logo-title">AgriSense</div>
+    <div class="logo-sub">Soil Intelligence Platform</div>
+  </div>
+  <!-- optional image for branding or illustration -->
+
+  <div class="card">
+    <div class="tabs">
+      <div class="tab on" onclick="sw('login')">Sign In</div>
+      <div class="tab" onclick="sw('reg')">Register</div>
+    </div>
+    <div id="msg" class="msg"></div>
+
+    <div class="panel on" id="p-login">
+      <div class="fi"><label>Email</label><input id="l-em" type="email" placeholder="you@email.com"></div>
+      <div class="fi"><label>Password</label><input id="l-pw" type="password" placeholder="Your password"></div>
+      <button class="btn" id="l-btn" onclick="doLogin()">Sign In</button>
+    </div>
+
+    <div class="panel" id="p-reg">
+      <div class="fi"><label>Full Name</label><input id="r-nm" type="text" placeholder="Your full name"></div>
+      <div class="fi"><label>Email</label><input id="r-em" type="email" placeholder="you@email.com"></div>
+      <div class="fi"><label>Password</label><input id="r-pw" type="password" placeholder="Min 6 characters"></div>
+      <div class="fi"><label>Confirm Password</label><input id="r-cf" type="password" placeholder="Repeat password"></div>
+      <button class="btn" id="r-btn" onclick="doReg()">Create Account</button>
+    </div>
+  </div>
+</div>
+<script>
+// API base — same origin since Flask serves both frontend and backend
+var API = '';
+
+// If already logged in go to dashboard
+if(localStorage.getItem('agri_user')) location.href = 'dashboard.html';
+
+function sw(t) {
+  document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('on',(i===0&&t==='login')||(i===1&&t==='reg'));});
+  document.getElementById('p-login').classList.toggle('on', t==='login');
+  document.getElementById('p-reg').classList.toggle('on', t==='reg');
+  setMsg('','');
+}
+
+function setMsg(txt, cls) {
+  var el = document.getElementById('msg');
+  el.textContent = txt;
+  el.className = 'msg ' + cls;
+  el.style.display = txt ? 'block' : 'none';
+}
+
+async function doLogin() {
+  var email = document.getElementById('l-em').value.trim();
+  var pass  = document.getElementById('l-pw').value;
+  if (!email || !pass) { setMsg('Please fill in all fields.','err'); return; }
+  var btn = document.getElementById('l-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    var r = await fetch(API + '/api/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email:email, password:pass})
+    });
+    var d = await r.json();
+    if (!r.ok) { setMsg(d.error || 'Login failed.','err'); btn.disabled=false; btn.textContent='Sign In'; return; }
+    localStorage.setItem('agri_user', JSON.stringify(d.user));
+    setMsg('Login successful! Redirecting...','suc');
+    setTimeout(function(){ location.href='dashboard.html'; }, 600);
+  } catch(e) {
+    setMsg('Cannot reach server. Is the backend running? Run: python app.py','err');
+    btn.disabled=false; btn.textContent='Sign In';
+  }
+}
+
+async function doReg() {
+  var name  = document.getElementById('r-nm').value.trim();
+  var email = document.getElementById('r-em').value.trim();
+  var pass  = document.getElementById('r-pw').value;
+  var conf  = document.getElementById('r-cf').value;
+  if (!name||!email||!pass) { setMsg('Please fill in all fields.','err'); return; }
+  if (pass !== conf)         { setMsg('Passwords do not match.','err'); return; }
+  if (pass.length < 6)       { setMsg('Password must be at least 6 characters.','err'); return; }
+  var btn = document.getElementById('r-btn');
+  btn.disabled=true; btn.textContent='Creating account...';
+  try {
+    var r = await fetch(API + '/api/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name:name, email:email, password:pass})
+    });
+    var d = await r.json();
+    if (!r.ok) { setMsg(d.error || 'Registration failed.','err'); btn.disabled=false; btn.textContent='Create Account'; return; }
+    setMsg('Account created! Please sign in.','suc');
+    setTimeout(function(){ sw('login'); btn.disabled=false; btn.textContent='Create Account'; }, 1000);
+  } catch(e) {
+    setMsg('Cannot reach server. Is the backend running? Run: python app.py','err');
+    btn.disabled=false; btn.textContent='Create Account';
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key==='Enter') { var b=document.querySelector('.panel.on .btn'); if(b) b.click(); }
+});
+</script>
+</body>
+</html>
