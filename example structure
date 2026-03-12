@@ -1,0 +1,10 @@
+agrisense-project
+│
+├── app.py
+├── requirements.txt
+├── templates
+│    ├── login.html
+│    └── dashboard.html
+├── static
+│    ├── style.css
+│    └── images
