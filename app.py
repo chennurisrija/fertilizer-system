@@ -5,6 +5,8 @@ from datetime import datetime
 import joblib
 import numpy as np
 
+app = Flask(__name__)
+
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
@@ -280,12 +282,11 @@ def history(uid):
     ).fetchall()
     conn.close()
     return jsonify([dict(r) for r in rows])
-
 if __name__ == '__main__':
     init_db()
+    port = int(os.environ.get("PORT", 10000))
     print("\n" + "="*50)
     print("  ✅ AgriSense Backend Running!")
-    print("  🌐 Open: http://localhost:5000")
-    print("  📡 API:  http://localhost:5000/api/health")
+    print("  🌐 Server starting...")
     print("="*50 + "\n")
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=port)
